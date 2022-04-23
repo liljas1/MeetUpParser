@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System;
-using Microsoft.AspNetCore.Routing;
 using System.Linq;
-using System.Dynamic;
 
 namespace MeetUpParser
 {
@@ -92,7 +90,11 @@ namespace MeetUpParser
       }
    ]
 }";
+            Console.WriteLine(MeetUpParser(json));
+        }
 
+        public static string MeetUpParser(string json)
+		{
             dynamic input = JsonConvert.DeserializeObject(json);
             dynamic meetings = input.input;
 
@@ -126,8 +128,8 @@ namespace MeetUpParser
             conferences.Add("meetUps", list);
 
             dynamic output = JsonConvert.SerializeObject(conferences);
-            Console.WriteLine(output);
-        }
+            return output;
+		}
 
         public static string FindMatchingCities(dynamic locations)
 		{
@@ -168,11 +170,9 @@ namespace MeetUpParser
 				}
 			}
 
+            //TODO: rename output variable
             string output = PrintLocation(locationsDict).TrimEnd().TrimEnd('|').TrimEnd();
 
-            //TODO: rename output variable
-			Console.WriteLine(output);
-			Console.WriteLine("------------------");
             return output;
 		}
 
@@ -250,8 +250,6 @@ namespace MeetUpParser
                 stateCity = stateCity.TrimEnd().TrimEnd('|');
             }
 
-            
-            /*Console.WriteLine(stateCity);*/
             return stateCity;
 		}
     }
