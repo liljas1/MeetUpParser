@@ -5,133 +5,137 @@ using System.Linq;
 
 namespace MeetUpParser
 {
-	class Program
+	public class Program
 	{
-        static void Main(string[] args)
-        {
-            string json = @"{
-   'input':[
-      {
-                'edition':'4th',
-         'name':'JBCN Conference',
-         'startDate':'2018-06-11',
-         'endDate':'2018-06-13',
-         'location':[
-            {
-                    'city':'Barcelona',
-               'country':'Spain'
-            }
-         ]
-      },
-      {
-                'edition':'3rd',
-         'name':'DevTernity',
-         'startDate':'2018-11-30',
-         'endDate':'2018-12-01',
-         'location':[
-            {
-                    'city':'Riga',
-               'country':'Latvia'
-            }
-         ]
-      },
-      {
-                'edition':'1st',
-         'name':'I T.A.K.E Unconference',
-         'startDate':'2016-05-19',
-         'endDate':'2016-05-20',
-         'location':[
-            {
-                    'city':'Bucharest',
-               'country':'Romania'
-            },
-            {
-                    'city':'Maramures',
-               'country':'Romania'
-            }
-         ]
-      },
-      {
-                'edition':'2nd',
-         'name':'Product Owner Rule Book',
-         'startDate':'2016-04-11',
-         'endDate':'2016-04-13',
-         'location':[
-            {
-                    'city':'Paris',
-               'country':'France'
-            },
-            {
-                    'city':'Madrid',
-               'country':'Spain'
-            }
-         ]
-      },
-      {
-                'name':'Upfront Summit',
-         'startDate':'2018-02-01',
-         'location':[
-            {
-                    'city':'Los Angeles',
-               'state':'California',
-               'country':'United States'
-            }
-         ]
-      },
-      {
-                'name':'IBM Think',
-         'startDate':'2018-03-19',
-         'location':[
-            {
-                    'state':'Nevada',
-               'country':'United States'
-            }
-         ]
-      }
-   ]
-}";
-            Console.WriteLine(MeetUpParser(json));
-        }
-
-        public static string MeetUpParser(string json)
+		static void Main(string[] args)
 		{
-            dynamic input = JsonConvert.DeserializeObject(json);
-            dynamic meetings = input.input;
+            string json = @"{
+               'input':[
+                  {
+                            'edition':'4th',
+                     'name':'JBCN Conference',
+                     'startDate':'2018-06-11',
+                     'endDate':'2018-06-13',
+                     'location':[
+                        {
+                                'city':'Barcelona',
+                           'country':'Spain'
+                        }
+                     ]
+                  },
+                  {
+                            'edition':'3rd',
+                     'name':'DevTernity',
+                     'startDate':'2018-11-30',
+                     'endDate':'2018-12-01',
+                     'location':[
+                        {
+                                'city':'Riga',
+                           'country':'Latvia'
+                        }
+                     ]
+                  },
+                  {
+                            'edition':'1st',
+                     'name':'I T.A.K.E Unconference',
+                     'startDate':'2016-05-19',
+                     'endDate':'2016-05-20',
+                     'location':[
+                        {
+                                'city':'Bucharest',
+                           'country':'Romania'
+                        },
+                        {
+                                'city':'Maramures',
+                           'country':'Romania'
+                        }
+                     ]
+                  },
+                  {
+                            'edition':'2nd',
+                     'name':'Product Owner Rule Book',
+                     'startDate':'2016-04-11',
+                     'endDate':'2016-04-13',
+                     'location':[
+                        {
+                                'city':'Paris',
+                           'country':'France'
+                        },
+                        {
+                                'city':'Madrid',
+                           'country':'Spain'
+                        }
+                     ]
+                  },
+                  {
+                            'name':'Upfront Summit',
+                     'startDate':'2018-02-01',
+                     'location':[
+                        {
+                                'city':'Los Angeles',
+                           'state':'California',
+                           'country':'United States'
+                        }
+                     ]
+                  },
+                  {
+                            'name':'IBM Think',
+                     'startDate':'2018-03-19',
+                     'location':[
+                        {
+                                'state':'Nevada',
+                           'country':'United States'
+                        }
+                     ]
+                  }
+               ]
+            }";
 
-            List<string> list = new List<string>();
-
-            foreach (var meet in meetings)
-            {
-                string locations = "";
-
-                //TODO: Rename variable
-                string lines = $"{meet["edition"] ?? ""} {meet["name"] ?? ""} · {meet["startDate"] ?? ""} ";
-
-                if (meet["endDate"] != null)
-				{
-                    lines += $"/ {meet["endDate"]} · ";
-				}
-				else
-				{
-                    lines += "· ";
-
-                }
-
-                locations = FindMatchingCities(meet["location"]);
-
-                lines += locations;
-
-                list.Add(lines.TrimStart());
-            }
-
-            IDictionary<string, List<string>> conferences = new Dictionary<string, List<string>>();
-            conferences.Add("meetUps", list);
-
-            dynamic output = JsonConvert.SerializeObject(conferences);
-            return output;
+			Console.WriteLine(MeetUpParser(json));
 		}
 
-        public static string FindMatchingCities(dynamic locations)
+        public static string MeetUpParser(string json)
+        {
+            dynamic inputJson = JsonConvert.DeserializeObject(json);
+            dynamic meetings = inputJson["input"];
+
+            List<string> outputString = new List<string>();
+
+            foreach (var meeting in meetings)
+            {
+                string meetingAndDate = EditionNameDateFormatter(meeting);
+                string locations = LocationsFormatter(meeting["location"]);
+
+                meetingAndDate += locations;
+
+                outputString.Add(meetingAndDate.TrimStart());
+            }
+
+            IDictionary<string, List<string>> parsedMeetings = new Dictionary<string, List<string>>();
+            parsedMeetings.Add("meetUps", outputString);
+
+            dynamic outputJson = JsonConvert.SerializeObject(parsedMeetings);
+
+            return outputJson;
+		}
+
+        public static string EditionNameDateFormatter(dynamic meeting)
+		{
+            string line = $"{meeting["edition"] ?? ""} {meeting["name"] ?? ""} · {meeting["startDate"] ?? ""} ";
+
+            if (meeting["endDate"] != null)
+            {
+                line += $"/ {meeting["endDate"]} · ";
+            }
+            else
+            {
+                line += "· ";
+            }
+
+            return line;
+		}
+
+        public static string LocationsFormatter(dynamic locations)
 		{
             Dictionary<string, List<string>> locationsDict = new Dictionary<string, List<string>>();
 
@@ -171,13 +175,12 @@ namespace MeetUpParser
 			}
 
             //TODO: rename output variable
-            string output = PrintLocation(locationsDict).TrimEnd().TrimEnd('|').TrimEnd();
+            string output = CountryFormatter(locationsDict).TrimEnd().TrimEnd('|').TrimEnd();
 
             return output;
 		}
 
-        //TODO: Change method name
-        public static string PrintLocation(Dictionary<string, List<string>> dictionary)
+        public static string CountryFormatter(Dictionary<string, List<string>> dictionary)
 		{
             string location = "";
             string delimiter = "";
@@ -190,7 +193,7 @@ namespace MeetUpParser
                 string country = kvp.Key;
                 List<string> cityStateList = kvp.Value;
 
-                location += PrintStatesAndCities(kvp.Value).TrimEnd();
+                location += CityAndStateFormatter(kvp.Value).TrimEnd();
 
                 for (int i = 0; i < cityStateList.Count(); i++)
                 {
@@ -219,17 +222,16 @@ namespace MeetUpParser
             return location;
         }
 
-        //TODO: Change method name
-        public static string PrintStatesAndCities(List<string> list)
+        public static string CityAndStateFormatter(List<string> list)
 		{
             //TODO: Change variable stateCity name
-            string stateCity = "";
+            string cityStateString = "";
 
             if(list.Count() <= 2)
 			{
                 for (int i = 0; i < list.Count(); i++)
                 {
-                    stateCity += list[i];
+                    cityStateString += list[i];
                 }
             }
 			else
@@ -244,13 +246,13 @@ namespace MeetUpParser
 
                     }
 
-                    stateCity += list[i] + delimiter;
+                    cityStateString += list[i] + delimiter;
                 }
 
-                stateCity = stateCity.TrimEnd().TrimEnd('|');
+                cityStateString = cityStateString.TrimEnd().TrimEnd('|');
             }
 
-            return stateCity;
+            return cityStateString;
 		}
     }
 }
