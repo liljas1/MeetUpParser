@@ -12,78 +12,78 @@ namespace MeetUpParser
             string json = @"{
                'input':[
                   {
-                            'edition':'4th',
+                     'edition':'4th',
                      'name':'JBCN Conference',
                      'startDate':'2018-06-11',
                      'endDate':'2018-06-13',
                      'location':[
                         {
-                                'city':'Barcelona',
+                           'city':'Barcelona',
                            'country':'Spain'
                         }
                      ]
                   },
                   {
-                            'edition':'3rd',
+                     'edition':'3rd',
                      'name':'DevTernity',
                      'startDate':'2018-11-30',
                      'endDate':'2018-12-01',
                      'location':[
                         {
-                                'city':'Riga',
+                           'city':'Riga',
                            'country':'Latvia'
                         }
                      ]
                   },
                   {
-                            'edition':'1st',
+                     'edition':'1st',
                      'name':'I T.A.K.E Unconference',
                      'startDate':'2016-05-19',
                      'endDate':'2016-05-20',
                      'location':[
                         {
-                                'city':'Bucharest',
+                           'city':'Bucharest',
                            'country':'Romania'
                         },
                         {
-                                'city':'Maramures',
+                           'city':'Maramures',
                            'country':'Romania'
                         }
                      ]
                   },
                   {
-                            'edition':'2nd',
+                     'edition':'2nd',
                      'name':'Product Owner Rule Book',
                      'startDate':'2016-04-11',
                      'endDate':'2016-04-13',
                      'location':[
                         {
-                                'city':'Paris',
+                           'city':'Paris',
                            'country':'France'
                         },
                         {
-                                'city':'Madrid',
+                           'city':'Madrid',
                            'country':'Spain'
                         }
                      ]
                   },
                   {
-                            'name':'Upfront Summit',
+                     'name':'Upfront Summit',
                      'startDate':'2018-02-01',
                      'location':[
                         {
-                                'city':'Los Angeles',
+                           'city':'Los Angeles',
                            'state':'California',
                            'country':'United States'
                         }
                      ]
                   },
                   {
-                            'name':'IBM Think',
+                     'name':'IBM Think',
                      'startDate':'2018-03-19',
                      'location':[
                         {
-                                'state':'Nevada',
+                           'state':'Nevada',
                            'country':'United States'
                         }
                      ]
@@ -146,7 +146,6 @@ namespace MeetUpParser
                 string country = location["country"].ToString();
                 string delimiter = "";
 
-                //TODO: Rewrite
                 if (location["state"] != null)
                 {                    
                     if(location["city"] != null)
@@ -156,13 +155,11 @@ namespace MeetUpParser
                     state = delimiter + location["state"].ToString();
                 }
 
-                //TODO: Rewrite
                 if (location["city"] != null)
                 {
                     city = location["city"].ToString();
                 }
 
-                //TODO: Extract to method (maybe)
                 if (locationsDict.ContainsKey(country))
                 {
                     List<string> locationList = locationsDict[country];
@@ -174,26 +171,23 @@ namespace MeetUpParser
 				}
 			}
 
-            //TODO: rename output variable
-            string output = CountryFormatter(locationsDict).TrimEnd().TrimEnd('|').TrimEnd();
-
-            return output;
+            return CountryFormatter(locationsDict);
 		}
 
         public static string CountryFormatter(Dictionary<string, List<string>> dictionary)
 		{
-            string location = "";
+            string formattedString = "";
             string delimiter = "";
             string sufix = "";
 
-            foreach (KeyValuePair<string, List<string>> kvp in dictionary)
+            foreach (KeyValuePair<string, List<string>> location in dictionary)
             {
                 int stateCount = 0;
                 int cityCount = 0;
-                string country = kvp.Key;
-                List<string> cityStateList = kvp.Value;
+                string country = location.Key;
+                List<string> cityStateList = location.Value;
 
-                location += CityAndStateFormatter(kvp.Value).TrimEnd();
+                formattedString += CityAndStateFormatter(cityStateList).TrimEnd();
 
                 for (int i = 0; i < cityStateList.Count(); i++)
                 {
@@ -216,37 +210,36 @@ namespace MeetUpParser
                 }
 
                 country = delimiter + country + sufix;
-                location += country;
+                formattedString += country;
             }
 
-            return location;
+            return formattedString.TrimEnd().TrimEnd('|').TrimEnd();
         }
 
-        public static string CityAndStateFormatter(List<string> list)
+        public static string CityAndStateFormatter(List<string> cityStateList)
 		{
-            //TODO: Change variable stateCity name
             string cityStateString = "";
 
-            if(list.Count() <= 2)
+            if(cityStateList.Count() <= 2)
 			{
-                for (int i = 0; i < list.Count(); i++)
+                for (int i = 0; i < cityStateList.Count(); i++)
                 {
-                    cityStateString += list[i];
+                    cityStateString += cityStateList[i];
                 }
             }
 			else
 			{
-                for (int i = 0; i < list.Count(); i++)
+                for (int i = 0; i < cityStateList.Count(); i++)
                 {
                     string delimiter = "";
 
-                    if (i % 2 != 0 && list[i-1] != "")
+                    if (i % 2 != 0 && cityStateList[i-1] != "")
                     {
                         delimiter = " | ";
 
                     }
 
-                    cityStateString += list[i] + delimiter;
+                    cityStateString += cityStateList[i] + delimiter;
                 }
 
                 cityStateString = cityStateString.TrimEnd().TrimEnd('|');
